@@ -4,6 +4,8 @@ bool numero_par_impar(int n) {
     return n % 2 == 0;  // si es divisible por 2 es par (devuelve true)
 
 
+
+
 }
 int main() {
     int numero; 
@@ -23,6 +25,8 @@ int main() {
             std::cout << "El número " << i << " es impar." << std::endl;
         }
     }
+//////////////////////////////////////////////////
+// funciion de longitud string
 
 
 
