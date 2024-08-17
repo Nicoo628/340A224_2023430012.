@@ -1,10 +1,10 @@
 #include <iostream> 
-
+#include <string>
 bool numero_par_impar(int n) {
     return n % 2 == 0;  // si es divisible por 2 es par (devuelve true)
-
-
-
+}
+int longitud_string(std::string str) {// parametros de la funcion de longitud string
+    return str.length();// se usa el length que devuelve un valor en este caso representado la cantidad de string
 
 }
 int main() {
@@ -25,21 +25,19 @@ int main() {
             std::cout << "El número " << i << " es impar." << std::endl;
         }
     }
+
+
 //////////////////////////////////////////////////
-// funciion de longitud string
+// string del usuario
+std::string string_usuario;
+std::cout << "Ingrese un string:" ;
+std::cin >> string_usuario;
+std::cout << "longitud del String ingresado es de: "<< longitud_string(string_usuario) << std::endl;
 
-
+//ejemplo directo
+std::string ejemplo = "Paralelepido";
+std::cout << "La longitud del string Paralelepipedo es de:" << longitud_string(ejemplo) << std::endl;
 
 
 }
 
-
-
-
-
-
-
-//INDICACIONES
-// Leer un numero y almacenarlo en una variable
-//crear funcion que identifique si el numero es par ono
-// crear una funcion que determine la longitud de un string
