@@ -8,8 +8,8 @@ using namespace std;
 struct Paciente {
     string nombre;
     int edad;
-    double altura; // En metros
-    double peso;   // En kilogramos
+    double altura; 
+    double peso;   
     Paciente* next;
 };
 
