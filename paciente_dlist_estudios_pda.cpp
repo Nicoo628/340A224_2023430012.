@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 #include <cmath> // Para la función pow
-
+#include <fstream>
+#include <sstream>
 using namespace std;
 
 // Estructura para una lista
@@ -130,13 +131,52 @@ while (actual !=nullptr) {// para que recorra todos los pacientes
 
 }
  
+//Funcion para cargar desde el archivo csv (REUTILIZADO DE EJEMPLO GUARDIANES)
+void CargarPacientesCSV (Paciente*& head, const string& paciente_lista){
+    ifstream archivo(paciente_lista);
+    string linea;
+
+    if (!archivo.is_open()) {
+    cout << "Nose pudo abrir el archivo. \n";
+    return;
+    }
+
+    getline(archivo, linea); // Descarta el encabezado
+
+    while (getline(archivo, linea)) {
+        stringstream ss(linea);
+        string nombre;
+        int edad;
+        double altura;
+        double peso;
+        double a1c;
+        string valor;
+
+
+        getline(ss, nombre, ',');
+        getline(ss, valor, ',');
+        edad = stoi(valor);
+        getline(ss, valor, ',');
+        altura = stod(valor);
+        getline(ss, valor, ',');
+        peso = stod(valor);
+        getline(ss, valor, ',');
+        a1c = stod(valor);
+
+        AñadirPaciente(head, nombre, edad, peso, altura, a1c);
+    }  
+
+archivo.close();
+}
+
+
+
 
 int main() {;
     Paciente* head = nullptr;
+    CargarPacientesCSV(head, "paciente_lista.csv");
+
     // Orden: nombre, edad, peso, altura, a1c
-    AñadirPaciente(head, "Cristopher Reyes ", 22, 100, 1.83, 5.2);
-    AñadirPaciente(head, "Nicolas Morales ", 19, 64, 1.71, 6.1);
-    AñadirPaciente(head, "Eustaquio Tamarindo ", 94, 70, 2.01, 7.0);
     
     ImprimirPaciente(head);
     PromedioEdad(head);
