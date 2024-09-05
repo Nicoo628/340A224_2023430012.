@@ -115,7 +115,7 @@ void CalcularIMC(const Paciente* head) {
     }
 } 
 
-void CalculoPrioridad(const Paciente* head) {
+void CalculoPrioridadA1C(const Paciente* head) {
     const Paciente* actual = head;
 
 while (actual !=nullptr) {// para que recorra todos los pacientes
@@ -215,6 +215,50 @@ void BuscarPacienteA1C(const Paciente* head, double a1cBuscado) {// se compara c
     cout << "Ningun paciente tiene un A1C de " << a1cBuscado << ".\n";
     }
 }
+// La manera que voy a calcular la prioridad todal va a ser la siguiente(Tome parte de su idea que explico en clases)
+// voy a darles valores numericos a cada "fase" entre la imc y a1c, desde 1 hasta el 3 cada una
+//El riesgo mas bajo del 1 hasta el mas alto 3, y la suma entre ellas seria la prioridad del paciente
+// Los valores totales de la prioridad final seria de 2-6
+void PrioridadAtencion(const Paciente* head) {
+    const Paciente* actual = head;
+
+while  (actual != nullptr){
+    int riesgoIMC = 0;
+    int riesgoA1C = 0;
+
+    // Riesgo del IMC
+    if (actual ->imc >= 18.5 && actual -> imc <= 24.9) {
+        riesgoIMC = 1;
+    } else if (actual ->imc >= 25 && actual ->imc <= 29.9) {
+        riesgoIMC = 2;
+    } else if (actual ->imc >= 30) {
+        riesgoIMC = 3;
+    }
+
+
+    // Riesgo del A1C 
+    if (actual ->a1c < 5.7) {
+        riesgoA1C = 1;
+    } else if (actual ->a1c >= 5.7 && actual ->a1c <= 6.4 ) {
+        riesgoA1C = 2;
+    } else if (actual -> a1c >= 6.5) {
+        riesgoA1C = 3;
+    }
+
+    // calcular el indice de prioridad total
+
+    int IndicePrioridad = riesgoIMC + riesgoA1C;
+
+    cout << "Paciente: " << actual->nombre << "\n";
+        cout << "IMC: " << actual->imc << "\n";
+        cout << "A1C: " << actual->a1c << "\n";
+        cout << "Índice de Prioridad: " << IndicePrioridad << " (entre 2 y 6, donde 6 es la mayor prioridad)\n";
+        cout << "------------------------------------------\n";
+
+        // Avanzar al siguiente paciente
+        actual = actual->next;
+    }
+}
 
 
 
@@ -229,14 +273,14 @@ int main() {;
     PromedioEdad(head);
     PromedioPeso(head);
     CalcularIMC(head);
-    CalculoPrioridad(head);
+    CalculoPrioridadA1C(head);
 
     EliminarPaciente(head, "a"); // no me dejaba poner sin el "a" porque no se llamaban todos los parámetros de la función
     
     //buscar directamente a los pacientes con ejemplos
     BuscarPacienteIMC(head, 22.921);
     BuscarPacienteA1C(head, 5.7);
-    
+    PrioridadAtencion(head);
     return 0;
 }
 
