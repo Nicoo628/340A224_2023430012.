@@ -169,6 +169,53 @@ void CargarPacientesCSV (Paciente*& head, const string& paciente_lista){
 archivo.close();
 }
 
+// Funciones para buscar al paciente ya sea por su imc o a1c
+void BuscarPacienteIMC(const Paciente* head, double imcBuscado) {// se compara con poco margen de error
+    const Paciente* actual = head;
+    bool encontrado = false;
+
+    while (actual != nullptr) {
+        if (fabs(actual->imc - imcBuscado) < 0.01) {
+            cout << " Paciente con IMC de " <<imcBuscado << " encontrado:\n";
+            cout << "Nombre: " << actual -> nombre << "\n";
+            cout << "Edad: " << actual -> edad << "\n";
+            cout << "Peso: " << actual -> peso << "kg\n";
+            cout << "Altura: " << actual -> altura <<"m\n";
+            cout << "IMC: " << actual -> imc << "\n";
+            encontrado = true;
+
+    }
+    actual = actual ->next;
+ }
+
+ if (!encontrado) {
+    cout << " Ningun paciente tiene un IMC de " << imcBuscado << ".\n";
+    }
+}
+// reclicle literalmente lo mismo 
+void BuscarPacienteA1C(const Paciente* head, double a1cBuscado) {// se compara con poco margen de error
+    const Paciente* actual = head;
+    bool encontrado = false;
+
+    while (actual != nullptr) {
+        if (fabs(actual->a1c - a1cBuscado) < 0.01) {
+            cout << " Paciente con A1C de " <<a1cBuscado << " encontrado:\n";
+            cout << "Nombre: " << actual -> nombre << "\n";
+            cout << "Edad: " << actual -> edad << "\n";
+            cout << "Peso: " << actual -> peso << "kg\n";
+            cout << "Altura: " << actual -> altura <<"m\n";
+            cout << "A1C: " << actual -> imc << "\n";
+            encontrado = true;
+
+    }
+    actual = actual ->next;
+ }
+
+ if (!encontrado) {
+    cout << "Ningun paciente tiene un A1C de " << a1cBuscado << ".\n";
+    }
+}
+
 
 
 
@@ -185,5 +232,13 @@ int main() {;
     CalculoPrioridad(head);
 
     EliminarPaciente(head, "a"); // no me dejaba poner sin el "a" porque no se llamaban todos los parámetros de la función
+    
+    //buscar directamente a los pacientes con ejemplos
+    BuscarPacienteIMC(head, 22.921);
+    BuscarPacienteA1C(head, 5.7);
+    
     return 0;
 }
+
+   
+//fabs compara numero de punto flotante con pequeño margen de error, para llevar mejor los decimales
