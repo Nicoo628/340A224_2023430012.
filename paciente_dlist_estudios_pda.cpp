@@ -270,6 +270,92 @@ void PrioridadAtencion(const Paciente* head) {
     }
 }
 
+void MostrarMenu() {
+    cout << "\n---- MENU INTERACTIVO ----\n";
+    cout << "1. Añadir Paciente\n";
+    cout << "2. Eliminar Paciente\n";
+    cout << "3. Imprimir Pacientes\n";
+    cout << "4. Calcular IMC de Pacientes\n";
+    cout << "5. Calcular Prioridad A1C\n";
+    cout << "6. Buscar Paciente por IMC\n";
+    cout << "7. Buscar Paciente por A1C\n";
+    cout << "8. Calcular Promedio de Edad\n";
+    cout << "9. Calcular Promedio de Peso\n";
+    cout << "10. Calcular Prioridad Total\n";
+    cout << "11. Salir\n";
+    cout << "Elige una opción: ";
+}
+
+void MenuInteractivo(Paciente*& head) {
+    int opcion;
+    string nombre;
+    int edad;
+    double peso, altura, a1c, imcBuscado, a1cBuscado;
+
+    do {
+        MostrarMenu();
+        cin >> opcion;
+
+        switch(opcion) {
+            case 1:
+                cout << "Introduce nombre: ";
+                cin >> nombre;
+                cout << "Introduce edad: ";
+                cin >> edad;
+                cout << "Introduce peso (kg): ";
+                cin >> peso;
+                cout << "Introduce altura (m): ";
+                cin >> altura;
+                cout << "Introduce nivel de A1C: ";
+                cin >> a1c;
+                AñadirPaciente(head, nombre, edad, peso, altura, a1c);
+                break;
+            case 2:
+                cout << "Introduce el nombre del paciente a eliminar: ";
+                cin >> nombre;
+                EliminarPaciente(head, nombre);
+                break;
+            case 3:
+                ImprimirPaciente(head);
+                break;
+            case 4:
+                CalcularIMC(head);
+                break;
+            case 5:
+                CalculoPrioridadA1C(head);
+                break;
+            case 6:
+                cout << "Introduce el IMC a buscar: ";
+                cin >> imcBuscado;
+                BuscarPacienteIMC(head, imcBuscado);
+                break;
+            case 7:
+                cout << "Introduce el A1C a buscar: ";
+                cin >> a1cBuscado;
+                BuscarPacienteA1C(head, a1cBuscado);
+                break;
+            case 8:
+                PromedioEdad(head);
+                break;
+            case 9:
+                PromedioPeso(head);
+                break;
+            case 10:
+                PrioridadAtencion(head);
+                break;
+            case 11:
+                cout << "Saliendo del programa.\n";
+                break;
+            default:
+                cout << "Opción inválida, intenta nuevamente.\n";
+                break;
+        }
+    } while(opcion != 11);
+}
+
+
+
+
 int main() {
     Paciente* head = nullptr;
     CargarPacientesCSV(head, "paciente_lista.csv");
@@ -287,6 +373,6 @@ int main() {
     BuscarPacienteA1C(head, 5.7);
 
     PrioridadAtencion(head);
-
+    MenuInteractivo(head);
     return 0;
 }
