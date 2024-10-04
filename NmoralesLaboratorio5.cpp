@@ -54,6 +54,9 @@ void Elimina_balanceado(Arbol* a, int dat); // Función de eliminación balancea
 void Reestructura_izq(Arbol* a, pNodo nodo);
 void Reestructura_der(Arbol* a, pNodo nodo);
 
+// Nueva función de búsqueda
+int BuscarNumero(Arbol a, int dat);
+
 int main() {
     Arbol ArbolInt = NULL;
     int opcion = 0;
@@ -69,6 +72,15 @@ int main() {
                 std::cout << "Ingrese su numero: ";
                 std::cin >> valor;
                 Insertar(&ArbolInt, valor);
+                break;
+            case 2: // Opción de búsqueda
+                std::cout << "Ingrese el número a buscar: ";
+                std::cin >> valor;
+                if (BuscarNumero(ArbolInt, valor)) {
+                    std::cout << "El número " << valor << " se encontró en el árbol." << std::endl;
+                } else {
+                    std::cout << "El número " << valor << " no se encontró en el árbol." << std::endl;
+                }
                 break;
             case 3:
                 std::cout << "Ingrese el número a eliminar: ";
@@ -260,100 +272,121 @@ void Reestructura_der(Arbol* a, pNodo nodo) {
     }
 }
 
-// Implementación de las rotaciones
-void RotaIzquierdaIzquierda(Arbol* raiz, pNodo nodo) {
-    pNodo padre = nodo->padre;
-    pNodo p = nodo;
-    pNodo q = p->izquierdo;
+void RotaDerechaDerecha(Arbol* a, pNodo nodo) {
+    pNodo hijo = nodo->derecho;
+    nodo->derecho = hijo->izquierdo;
 
-    p->izquierdo = q->derecho;
-    if (q->derecho) q->derecho->padre = p;
+    if (hijo->izquierdo) hijo->izquierdo->padre = nodo;
+    hijo->padre = nodo->padre;
 
-    q->derecho = p;
-    q->padre = padre;
-
-    if (padre) {
-        if (padre->izquierdo == p) padre->izquierdo = q;
-        else padre->derecho = q;
+    if (!nodo->padre) {
+        *a = hijo;
+    } else if (nodo->padre->izquierdo == nodo) {
+        nodo->padre->izquierdo = hijo;
     } else {
-        *raiz = q;
+        nodo->padre->derecho = hijo;
     }
 
-    p->padre = q;
-
-    // Actualizar los factores de equilibrio
-    switch (q->FE) {
-        case -1:
-            p->FE = 0;
-            q->FE = 0;
-            break;
-        case 0:
-            p->FE = 0;
-            q->FE = 0;
-            break;
-        case 1:
-            p->FE = -1;
-            q->FE = 0;
-            break;
-    }
+    hijo->izquierdo = nodo;
+    nodo->padre = hijo;
+    nodo->FE = nodo->FE - 1 - std::max(0, hijo->FE);
+    hijo->FE = hijo->FE - 1 + std::min(0, nodo->FE);
 }
 
-void RotaDerechaDerecha(Arbol* raiz, pNodo nodo) {
-    pNodo padre = nodo->padre;
-    pNodo p = nodo;
-    pNodo q = p->derecho;
+void RotaIzquierdaIzquierda(Arbol* a, pNodo nodo) {
+    pNodo hijo = nodo->izquierdo;
+    nodo->izquierdo = hijo->derecho;
 
-    p->derecho = q->izquierdo;
-    if (q->izquierdo) q->izquierdo->padre = p;
+    if (hijo->derecho) hijo->derecho->padre = nodo;
+    hijo->padre = nodo->padre;
 
-    q->izquierdo = p;
-    q->padre = padre;
-
-    if (padre) {
-        if (padre->izquierdo == p) padre->izquierdo = q;
-        else padre->derecho = q;
+    if (!nodo->padre) {
+        *a = hijo;
+    } else if (nodo->padre->izquierdo == nodo) {
+        nodo->padre->izquierdo = hijo;
     } else {
-        *raiz = q;
+        nodo->padre->derecho = hijo;
     }
 
-    p->padre = q;
-
-    // Actualizar los factores de equilibrio
-    switch (q->FE) {
-        case -1:
-            p->FE = 1;
-            q->FE = 0;
-            break;
-        case 0:
-            p->FE = 0;
-            q->FE = 0;
-            break;
-        case 1:
-            p->FE = 0;
-            q->FE = -1;
-            break;
-    }
+    hijo->derecho = nodo;
+    nodo->padre = hijo;
+    nodo->FE = nodo->FE + 1 - std::min(0, hijo->FE);
+    hijo->FE = hijo->FE + 1 + std::max(0, nodo->FE);
 }
 
-// Aquí implementas las rotaciones restantes
-void RotaDerechaIzquierda(Arbol* raiz, pNodo nodo) {
-    // Implementación de rotación derecha-izquierda
+void RotaDerechaIzquierda(Arbol* a, pNodo nodo) {
+    RotaDerechaDerecha(a, nodo->derecho);
+    RotaIzquierdaIzquierda(a, nodo);
 }
 
-void RotaIzquierdaDerecha(Arbol* raiz, pNodo nodo) {
-    // Implementación de rotación izquierda-derecha
+void RotaIzquierdaDerecha(Arbol* a, pNodo nodo) {
+    RotaIzquierdaIzquierda(a, nodo->izquierdo);
+    RotaDerechaDerecha(a, nodo);
 }
 
 void PreOrden(Arbol a, std::ofstream &fp) {
     if (a) {
-        fp << a->dato << " [label=\"" << a->dato << "\"];\n";
+        fp << a->dato << ";\n";
         if (a->izquierdo) {
-            fp << a->dato << " -> " << a->izquierdo->dato << ";\n";
+            fp << a->dato << "->" << a->izquierdo->dato << ";\n";
             PreOrden(a->izquierdo, fp);
         }
         if (a->derecho) {
-            fp << a->dato << " -> " << a->derecho->dato << ";\n";
+            fp << a->dato << "->" << a->derecho->dato << ";\n";
             PreOrden(a->derecho, fp);
         }
     }
+}
+
+// Función de búsqueda de número
+int BuscarNumero(Arbol a, int dat) {
+    while (a) {
+        if (dat == a->dato) {
+            return TRUE;  // Encontrado
+        } else if (dat < a->dato) {
+            a = a->izquierdo;
+        } else {
+            a = a->derecho;
+        }
+    }
+    return FALSE;  // No encontrado
+}
+
+// Comprobar si es un nodo hoja
+int EsHoja(pNodo r) {
+    return (r && r->izquierdo == NULL && r->derecho == NULL);
+}
+
+// Contar número de nodos
+int NumeroNodos(Arbol a, int* c) {
+    if (a) {
+        (*c)++;
+        NumeroNodos(a->izquierdo, c);
+        NumeroNodos(a->derecho, c);
+    }
+    return *c;
+}
+
+// Calcular la altura de un árbol
+int AlturaArbol(Arbol a, int* altura) {
+    if (a) {
+        AlturaArbol(a->izquierdo, altura);
+        AlturaArbol(a->derecho, altura);
+        (*altura)++;
+    }
+    return *altura;
+}
+
+// Calcular altura de un dato
+int Altura(Arbol a, int dat) {
+    if (a) {
+        if (dat == a->dato) {
+            return 0;
+        } else if (dat < a->dato) {
+            return 1 + Altura(a->izquierdo, dat);
+        } else {
+            return 1 + Altura(a->derecho, dat);
+        }
+    }
+    return -1; // Si el dato no se encuentra
 }
