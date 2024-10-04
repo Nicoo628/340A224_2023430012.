@@ -56,6 +56,8 @@ void Reestructura_der(Arbol* a, pNodo nodo);
 
 // Nueva función de búsqueda
 int BuscarNumero(Arbol a, int dat);
+// Nueva función de modificar elemento
+void ModificarElemento(Arbol* a, int dat, int nuevoDato);
 
 int main() {
     Arbol ArbolInt = NULL;
@@ -86,6 +88,16 @@ int main() {
                 std::cout << "Ingrese el número a eliminar: ";
                 std::cin >> valor;
                 Elimina_balanceado(&ArbolInt, valor);
+                break;
+            case 4: // Opción de modificar elemento
+                {
+                    int nuevoValor;
+                    std::cout << "Ingrese el número a modificar: ";
+                    std::cin >> valor;
+                    std::cout << "Ingrese el nuevo valor: ";
+                    std::cin >> nuevoValor;
+                    ModificarElemento(&ArbolInt, valor, nuevoValor);
+                }
                 break;
             case 5:
                 GenerarGrafo(ArbolInt);
@@ -254,139 +266,150 @@ void Elimina_balanceado(Arbol* a, int dat) {
 
 void Reestructura_izq(Arbol* a, pNodo nodo) {
     nodo->FE += 1;
+    if (nodo->FE == 1) return;
     if (nodo->FE == 2) {
-        if (nodo->derecho->FE == -1)
-            RotaDerechaIzquierda(a, nodo);
-        else
-            RotaDerechaDerecha(a, nodo);
-    }
-}
-
-void Reestructura_der(Arbol* a, pNodo nodo) {
-    nodo->FE -= 1;
-    if (nodo->FE == -2) {
-        if (nodo->izquierdo->FE == 1)
-            RotaIzquierdaDerecha(a, nodo);
-        else
+        if (nodo->izquierdo->FE == 1) {
             RotaIzquierdaIzquierda(a, nodo);
+        } else {
+            RotaIzquierdaDerecha(a, nodo);
+        }
     }
-}
-
-void RotaDerechaDerecha(Arbol* a, pNodo nodo) {
-    pNodo hijo = nodo->derecho;
-    nodo->derecho = hijo->izquierdo;
-
-    if (hijo->izquierdo) hijo->izquierdo->padre = nodo;
-    hijo->padre = nodo->padre;
-
-    if (!nodo->padre) {
-        *a = hijo;
-    } else if (nodo->padre->izquierdo == nodo) {
-        nodo->padre->izquierdo = hijo;
-    } else {
-        nodo->padre->derecho = hijo;
-    }
-
-    hijo->izquierdo = nodo;
-    nodo->padre = hijo;
-    nodo->FE = nodo->FE - 1 - std::max(0, hijo->FE);
-    hijo->FE = hijo->FE - 1 + std::min(0, nodo->FE);
 }
 
 void RotaIzquierdaIzquierda(Arbol* a, pNodo nodo) {
-    pNodo hijo = nodo->izquierdo;
-    nodo->izquierdo = hijo->derecho;
+    pNodo izq = nodo->izquierdo;
+    nodo->izquierdo = izq->derecho;
+    if (izq->derecho) izq->derecho->padre = nodo;
 
-    if (hijo->derecho) hijo->derecho->padre = nodo;
-    hijo->padre = nodo->padre;
-
+    izq->padre = nodo->padre;
     if (!nodo->padre) {
-        *a = hijo;
-    } else if (nodo->padre->izquierdo == nodo) {
-        nodo->padre->izquierdo = hijo;
+        *a = izq;
+    } else if (nodo == nodo->padre->izquierdo) {
+        nodo->padre->izquierdo = izq;
     } else {
-        nodo->padre->derecho = hijo;
+        nodo->padre->derecho = izq;
     }
+    izq->derecho = nodo;
+    nodo->padre = izq;
 
-    hijo->derecho = nodo;
-    nodo->padre = hijo;
-    nodo->FE = nodo->FE + 1 - std::min(0, hijo->FE);
-    hijo->FE = hijo->FE + 1 + std::max(0, nodo->FE);
-}
-
-void RotaDerechaIzquierda(Arbol* a, pNodo nodo) {
-    RotaDerechaDerecha(a, nodo->derecho);
-    RotaIzquierdaIzquierda(a, nodo);
+    nodo->FE = 0;
+    izq->FE = 0;
 }
 
 void RotaIzquierdaDerecha(Arbol* a, pNodo nodo) {
-    RotaIzquierdaIzquierda(a, nodo->izquierdo);
-    RotaDerechaDerecha(a, nodo);
-}
+    pNodo izq = nodo->izquierdo;
+    pNodo der = izq->derecho;
+    izq->derecho = der->izquierdo;
+    if (der->izquierdo) der->izquierdo->padre = izq;
 
-void PreOrden(Arbol a, std::ofstream &fp) {
-    if (a) {
-        fp << a->dato << ";\n";
-        if (a->izquierdo) {
-            fp << a->dato << "->" << a->izquierdo->dato << ";\n";
-            PreOrden(a->izquierdo, fp);
-        }
-        if (a->derecho) {
-            fp << a->dato << "->" << a->derecho->dato << ";\n";
-            PreOrden(a->derecho, fp);
-        }
+    der->padre = nodo->padre;
+    if (!nodo->padre) {
+        *a = der;
+    } else if (nodo == nodo->padre->izquierdo) {
+        nodo->padre->izquierdo = der;
+    } else {
+        nodo->padre->derecho = der;
     }
+    der->izquierdo = izq;
+    izq->padre = der;
+    nodo->izquierdo = der->derecho;
+    if (der->derecho) der->derecho->padre = nodo;
+    der->derecho = nodo;
+    nodo->padre = der;
+
+    if (der->FE == 1) {
+        nodo->FE = -1;
+        izq->FE = 0;
+    } else if (der->FE == 0) {
+        nodo->FE = 0;
+        izq->FE = 0;
+    } else {
+        nodo->FE = 0;
+        izq->FE = 1;
+    }
+    der->FE = 0;
 }
 
-// Función de búsqueda de número
+void RotaDerechaDerecha(Arbol* a, pNodo nodo) {
+    pNodo der = nodo->derecho;
+    nodo->derecho = der->izquierdo;
+    if (der->izquierdo) der->izquierdo->padre = nodo;
+
+    der->padre = nodo->padre;
+    if (!nodo->padre) {
+        *a = der;
+    } else if (nodo == nodo->padre->izquierdo) {
+        nodo->padre->izquierdo = der;
+    } else {
+        nodo->padre->derecho = der;
+    }
+    der->izquierdo = nodo;
+    nodo->padre = der;
+
+    nodo->FE = 0;
+    der->FE = 0;
+}
+
+void RotaDerechaIzquierda(Arbol* a, pNodo nodo) {
+    pNodo der = nodo->derecho;
+    pNodo izq = der->izquierdo;
+    der->izquierdo = izq->derecho;
+    if (izq->derecho) izq->derecho->padre = der;
+
+    izq->padre = nodo->padre;
+    if (!nodo->padre) {
+        *a = izq;
+    } else if (nodo == nodo->padre->izquierdo) {
+        nodo->padre->izquierdo = izq;
+    } else {
+        nodo->padre->derecho = izq;
+    }
+    izq->derecho = der;
+    der->padre = izq;
+
+    nodo->derecho = izq->izquierdo;
+    if (izq->izquierdo) izq->izquierdo->padre = nodo;
+    izq->izquierdo = nodo;
+    nodo->padre = izq;
+
+    if (izq->FE == -1) {
+        nodo->FE = 1;
+        der->FE = 0;
+    } else if (izq->FE == 0) {
+        nodo->FE = 0;
+        der->FE = 0;
+    } else {
+        nodo->FE = 0;
+        der->FE = -1;
+    }
+    izq->FE = 0;
+}
+
 int BuscarNumero(Arbol a, int dat) {
     while (a) {
-        if (dat == a->dato) {
-            return TRUE;  // Encontrado
-        } else if (dat < a->dato) {
-            a = a->izquierdo;
+        if (dat == a->dato) return TRUE;
+        else if (dat < a->dato) a = a->izquierdo;
+        else a = a->derecho;
+    }
+    return FALSE;
+}
+
+void ModificarElemento(Arbol* a, int dat, int nuevoDato) {
+    pNodo nodo = *a;
+
+    while (nodo) {
+        if (dat == nodo->dato) {
+            if (BuscarNumero(*a, nuevoDato)) {
+                std::cout << "El valor " << nuevoDato << " ya existe en el árbol." << std::endl;
+                return;
+            }
+            nodo->dato = nuevoDato;
+            return;
+        } else if (dat < nodo->dato) {
+            nodo = nodo->izquierdo;
         } else {
-            a = a->derecho;
+            nodo = nodo->derecho;
         }
     }
-    return FALSE;  // No encontrado
-}
-
-// Comprobar si es un nodo hoja
-int EsHoja(pNodo r) {
-    return (r && r->izquierdo == NULL && r->derecho == NULL);
-}
-
-// Contar número de nodos
-int NumeroNodos(Arbol a, int* c) {
-    if (a) {
-        (*c)++;
-        NumeroNodos(a->izquierdo, c);
-        NumeroNodos(a->derecho, c);
-    }
-    return *c;
-}
-
-// Calcular la altura de un árbol
-int AlturaArbol(Arbol a, int* altura) {
-    if (a) {
-        AlturaArbol(a->izquierdo, altura);
-        AlturaArbol(a->derecho, altura);
-        (*altura)++;
-    }
-    return *altura;
-}
-
-// Calcular altura de un dato
-int Altura(Arbol a, int dat) {
-    if (a) {
-        if (dat == a->dato) {
-            return 0;
-        } else if (dat < a->dato) {
-            return 1 + Altura(a->izquierdo, dat);
-        } else {
-            return 1 + Altura(a->derecho, dat);
-        }
-    }
-    return -1; // Si el dato no se encuentra
+    std::cout << "El valor " << dat << " no se encontró en el árbol." << std::endl;
 }
