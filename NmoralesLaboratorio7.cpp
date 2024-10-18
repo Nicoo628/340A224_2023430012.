@@ -22,8 +22,14 @@ public:
 
     // Funcion para agregar una arista con un peso entre dos vertices
     void agregarArco(int u, int v, int peso) {
-        matrizDistancias[u][v] = peso;
-        matrizDistancias[v][u] = peso;  // Para grafos no dirigidos
+        if (peso == -1) {
+            // Si el peso es -1, significa que no hay conexion
+            matrizDistancias[u][v] = INF;
+            matrizDistancias[v][u] = INF;  // Para grafos no dirigidos
+        } else {
+            matrizDistancias[u][v] = peso;
+            matrizDistancias[v][u] = peso;  // Para grafos no dirigidos
+        }
     }
 
     // Mostrar la matriz de distancias (opcional, para verificar)
@@ -31,7 +37,7 @@ public:
         for (int i = 0; i < numVertices; ++i) {
             for (int j = 0; j < numVertices; ++j) {
                 if (matrizDistancias[i][j] == INF) {
-                    cout << "INF ";
+                    cout << "-1 ";  // Mostrar -1 en lugar de INF
                 } else {
                     cout << matrizDistancias[i][j] << " ";
                 }
@@ -88,22 +94,35 @@ public:
 };
 
 int main() {
-    int numVertices = 5;  // Numero de vertices en el grafo
+    int numVertices;
+
+// se pregunta al usario para que los datos se lean desde la terminal 
+    cout << "Ingrese el numero de vertices (N): ";
+    cin >> numVertices;
+
+    if (numVertices < 3) {
+        cout << "El numero de vertices debe ser mayor a 2." << endl;
+        return 1; // Salir si el numero no es valido
+    }
+
     Grafo g(numVertices);
 
-    // Agregar arcos con sus pesos
-    // Los arcos estan ordenados de la siguiente manera 
-    // (donde empieza, adonde llega, el coste)
-    g.agregarArco(0, 1, 2); // Empieza del 0, llega al 1, y cuesta 2
-    g.agregarArco(0, 2, 4);
-    g.agregarArco(1, 2, 1);
-    g.agregarArco(1, 3, 7);
-    g.agregarArco(2, 3, 3);
-    g.agregarArco(2, 4, 5);
-    g.agregarArco(3, 4, 1);
+    // Leer la matriz de distancias desde la terminal
+    cout << "Ingrese los pesos de la matriz de distancias (use -1 para indicar que no hay conexion):\n";
+    for (int i = 0; i < numVertices; ++i) {
+        for (int j = 0; j < numVertices; ++j) {
+            // Evitar pedir datos para la diagonal principal (autoconexiones)
+            if (i != j) {
+                int peso;
+                cout << "Peso del arco entre " << i << " y " << j << ": ";
+                cin >> peso;
+                g.agregarArco(i, j, peso);
+            }
+        }
+    }
 
     // Mostrar la matriz de distancias
-    cout << "Matriz de distancias:" << endl;
+    cout << "\nMatriz de distancias:" << endl;
     g.mostrarMatriz();
 
     // Ejecutar el algoritmo de Prim
