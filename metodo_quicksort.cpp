@@ -1,4 +1,6 @@
 #include <iostream>
+#include <chrono>  // Para medir el tiempo
+#include <cstdlib> // Para generar números aleatorios
 using namespace std;
 
 // Función que divide el arreglo y encuentra la posicion del pivote
@@ -24,7 +26,7 @@ int reducir(int arreglo[], int inicio, int fin) {
 }
 
 void quicksort(int arreglo[], int tamanio) {
-    const int MAX = 100; // tamaño maximo de las pilas
+    const int MAX = 10000; // tamaño maximo de las pilas
     int pilaMenor[MAX], pilaMayor[MAX];
     int tope = 0;
 
@@ -58,23 +60,27 @@ void quicksort(int arreglo[], int tamanio) {
 }
 
 int main() {
-    int datos[] = {29, 10, 14, 37, 13, 5, 22, 40, 2, 17};
-    int tamanio = sizeof(datos) / sizeof(datos[0]);
+    const int tamanio = 10000;
+    int datos[tamanio];
 
-    cout << "Arreglo original: ";
+    // Generar un arreglo aleatorio grande
+    srand(time(0));
     for (int i = 0; i < tamanio; i++) {
-        cout << datos[i] << " ";
+        datos[i] = rand() % 10000; // Números aleatorios entre 0 y 9999
     }
-    cout << endl;
+
+    // Inicio de la medición del tiempo
+    auto start = std::chrono::high_resolution_clock::now();
 
     // Ordenar utilizando el método Quicksort
     quicksort(datos, tamanio);
 
-    cout << "Arreglo Metodo Quicksort: ";
-    for (int i = 0; i < tamanio; i++) {
-        cout << datos[i] << " ";
-    }
-    cout << endl;
+    // Fin de la medición del tiempo
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    // Mostrar el tiempo de ejecución en milisegundos
+    cout << "\nTiempo de ejecucion del Quicksort para un arreglo de 10,000 elementos: " << duration.count() << " milisegundos" << endl;
 
     return 0;
 }

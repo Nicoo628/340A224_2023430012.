@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>  // Para medir el tiempo
 using namespace std;
 
 // Aplica el metodo de seleccion en el array
@@ -26,7 +27,6 @@ void seleccion(int arreglo[], int tamanio) {
     }
 }
 
-
 int main() {
     int datos[] = {29, 10, 14, 37, 13, 5, 22, 40, 2, 17};
     int tamanio = sizeof(datos) / sizeof(datos[0]);
@@ -37,14 +37,24 @@ int main() {
     }
     cout << endl;
 
+    // Inicio de la medición del tiempo
+    auto start = std::chrono::high_resolution_clock::now();
+
     // Ordenar utilizando el método de selección
     seleccion(datos, tamanio);
+
+    // Fin de la medición del tiempo
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = (end - start);
 
     cout << "Arreglo Metodo Seleccion: ";
     for (int i = 0; i < tamanio; i++) {
         cout << datos[i] << " ";
     }
     cout << endl;
+
+    // Mostrar el tiempo de ejecución
+    cout << "\nTiempo de ejecucion del metodo de seleccion: " << duration.count() << " segundos" << endl;
 
     return 0;
 }
