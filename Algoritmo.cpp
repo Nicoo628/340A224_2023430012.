@@ -21,6 +21,7 @@ void RellenarMatriz(const string& secuencia1, const string& secuencia2, int coin
             } else if (fila == 0 && columna > 0) {
                 matriz[fila][columna] = matriz[fila][columna - 1] + gap; // gap en la segunda sec
             } else {
+                // Calculamos el puntaje diagonal (si los caracteres coinciden o no)
                 int puntajeDiagonal;
                 if (secuencia1[fila - 1] == secuencia2[columna - 1]) {
                     puntajeDiagonal = matriz[fila - 1][columna - 1] + coincidencia; // Coincidencia
@@ -45,6 +46,60 @@ void RellenarMatriz(const string& secuencia1, const string& secuencia2, int coin
         }
         cout << endl;
     }
+
+
+
+    //-----ALINEAMIENTO
+    int fila = longitudSecuencia1;
+    int columna = longitudSecuencia2;
+    string alineamientoSecuencia1 = "";
+    string alineamientoSecuencia2 = "";
+
+
+    while (fila > 0 || columna > 0) {// para ir recorriendo la matris inversamente
+        if (fila > 0 && columna > 0) {//(Esquina inferior izquierda hacia arriba)
+            // en diagoal
+            int puntajeDiagonal;
+            if (secuencia1[fila - 1] == secuencia2[columna - 1]) {
+                puntajeDiagonal = matriz[fila - 1][columna - 1] + coincidencia; // Coincidencia
+            } else {
+                puntajeDiagonal = matriz[fila - 1][columna - 1] + diferencia; // Diferencia
+            }
+
+            if (matriz[fila][columna] == puntajeDiagonal) {
+                alineamientoSecuencia1 = secuencia1[fila - 1] + alineamientoSecuencia1;
+                alineamientoSecuencia2 = secuencia2[columna - 1] + alineamientoSecuencia2;
+                fila--; 
+                columna--; 
+            } else if (matriz[fila][columna] == matriz[fila - 1][columna] + gap) {
+                // se mueve hacia arriba (gap en la segunda secuencia (T))
+                alineamientoSecuencia1 = secuencia1[fila - 1] + alineamientoSecuencia1;
+                alineamientoSecuencia2 = "-" + alineamientoSecuencia2;
+                fila--;
+            } else {
+                // se mueve hacia la izquierda (gap en la primera secuencia (S))
+                alineamientoSecuencia1 = "-" + alineamientoSecuencia1;
+                alineamientoSecuencia2 = secuencia2[columna - 1] + alineamientoSecuencia2;
+                columna--;
+            }
+
+        } else if (fila > 0) {
+            // Movimiento hacia arriba (solo fila restante)
+            alineamientoSecuencia1 = secuencia1[fila - 1] + alineamientoSecuencia1;
+            alineamientoSecuencia2 = "-" + alineamientoSecuencia2;
+            fila--;
+
+        } else {
+            // Movimiento hacia la izquierda (solo columna restante)
+            alineamientoSecuencia1 = "-" + alineamientoSecuencia1;
+            alineamientoSecuencia2 = secuencia2[columna - 1] + alineamientoSecuencia2;
+            columna--;
+        }
+    }
+
+    // Imprimir el alineamiento 
+    cout << "Alineamiento de la primera secuencia: " << alineamientoSecuencia1 << endl;
+    cout << "Alineamiento de la segunda secuencia: " << alineamientoSecuencia2 << endl;
 }
 
 int main() {
