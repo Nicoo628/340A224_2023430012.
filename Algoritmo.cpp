@@ -1,14 +1,27 @@
 #include <iostream>
-#include <algorithm> // Para std::max
+#include <fstream>    
+#include <string>     
 using namespace std;
 
-// rellenar matriz
+string leerArchivo(const string& nombreArchivo) {
+    ifstream archivo(nombreArchivo);  
+    if (!archivo) {  
+        cerr << "No se puede abrir el archivo : " << nombreArchivo << endl;
+        exit(1);  
+    }
+    string contenido;
+    getline(archivo, contenido); 
+    archivo.close();
+    return contenido;
+}
+
+// Rellenar matriz (función original de alineamiento)
 void RellenarMatriz(const string& secuencia1, const string& secuencia2, int coincidencia, int diferencia, int gap) {
     int longitudSecuencia1 = secuencia1.size(); // Longitudes de las secuencias
     int longitudSecuencia2 = secuencia2.size(); 
 
 
-    int matriz[100][100] = {0}; //tamaño matriz
+    int matriz[1000][1000] = {0}; //tamaño matriz
 
     // Rellenar la matriz
     for (int fila = 0; fila <= longitudSecuencia1; fila++) { // los ++ son para controlar mejor los bucles
@@ -82,13 +95,11 @@ void RellenarMatriz(const string& secuencia1, const string& secuencia2, int coin
                 alineamientoSecuencia2 = secuencia2[columna - 1] + alineamientoSecuencia2;
                 columna--;
             }
-
         } else if (fila > 0) {
             // Movimiento hacia arriba (solo fila restante)
             alineamientoSecuencia1 = secuencia1[fila - 1] + alineamientoSecuencia1;
             alineamientoSecuencia2 = "-" + alineamientoSecuencia2;
             fila--;
-
         } else {
             // Movimiento hacia la izquierda (solo columna restante)
             alineamientoSecuencia1 = "-" + alineamientoSecuencia1;
@@ -102,18 +113,25 @@ void RellenarMatriz(const string& secuencia1, const string& secuencia2, int coin
     cout << "Alineamiento de la segunda secuencia: " << alineamientoSecuencia2 << endl;
 }
 
-int main() {
-    // secuencias
-    string primeraSecuencia = "CAGCTAGCG"; // eje y
-    string segundaSecuencia = "CCATACGA"; // eje x
+int main(int argc, char* argv[]) {
+    // Verificar que los argumentos se pasaron correctamente
+    if (argc != 3) {
+        cerr << "Uso incorrecto del programa. El formato es:\n";
+        cerr << "./programa cad1.tex cad2.tex\n";
+        return 1;
+    }
 
-    // reglas
+    
+    string secuencia1 = leerArchivo(argv[1]);  
+    string secuencia2 = leerArchivo(argv[2]);  
+
+    //reglas de puntuacion
     int coincidencia = 1;
     int diferencia = -1;
     int gap = -1;
 
-    // mostrar
-    RellenarMatriz(primeraSecuencia, segundaSecuencia, coincidencia, diferencia, gap);
+
+    RellenarMatriz(secuencia1, secuencia2, coincidencia, diferencia, gap);
 
     return 0;
 }
