@@ -1,0 +1,2 @@
+Alineamiento de la primera secuencia: -CAGCTAGCG
+Alineamiento de la segunda secuencia: CCA--TA-CG
