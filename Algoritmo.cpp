@@ -1,51 +1,92 @@
 #include <iostream>
-#include <fstream>    
-#include <string>     
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sstream> 
+
 using namespace std;
 
+
+
+void generarGraphviz(const string& alineamientoSecuencia1, const string& alineamientoSecuencia2, const string& nombreArchivo);
+
 string leerArchivo(const string& nombreArchivo) {
-    ifstream archivo(nombreArchivo);  
-    if (!archivo) {  
+    ifstream archivo(nombreArchivo);
+    if (!archivo) {
         cerr << "No se puede abrir el archivo : " << nombreArchivo << endl;
-        exit(1);  
+        exit(1);
     }
     string contenido;
-    getline(archivo, contenido); 
+    getline(archivo, contenido);
     archivo.close();
     return contenido;
 }
 
-// Rellenar matriz (función original de alineamiento)
-void RellenarMatriz(const string& secuencia1, const string& secuencia2, int coincidencia, int diferencia, int gap) {
-    int longitudSecuencia1 = secuencia1.size(); // Longitudes de las secuencias
+// LEER LA MATRIZ U------------------------------
+vector<vector<int>> leerMatrizU(const string& nombreArchivo) {
+    ifstream archivo(nombreArchivo);
+    if (!archivo) {
+        cerr << "No se pudo abrir la matriz U: " << nombreArchivo << endl;
+        exit(1);
+    }
+
+    vector<vector<int>> matrizU;
+    string linea;
+
+    while (getline(archivo, linea)) {
+        vector<int> fila;
+        stringstream ss(linea);
+        string valor;
+
+        while (getline(ss, valor, ',')) {
+            fila.push_back(stoi(valor)); 
+        }
+
+        matrizU.push_back(fila);
+    }
+
+    archivo.close();
+    return matrizU;
+}
+
+// Nucleotido a indice
+int indiceDeLetra(char nucleotido) {
+    if (nucleotido == 'A') return 0;
+    if (nucleotido == 'C') return 1;
+    if (nucleotido == 'G') return 2;
+    if (nucleotido == 'T') return 3;
+    return -1;  
+}
+
+
+
+//LLENADO DE LA MATRIZ Y ALINEAMIENTO DE LAS SECUENCIAS----------------------------------------
+void RellenarMatriz(const string& secuencia1, const string& secuencia2, const vector<vector<int>>& matrizU, int gap) {
+    int longitudSecuencia1 = secuencia1.size();  // Longitudes de las secuencias
     int longitudSecuencia2 = secuencia2.size(); 
 
-
-    int matriz[1000][1000] = {0}; //tamaño matriz
+    int matriz[1000][1000] = {0};  // Tamaño de la matriz (modificable segun se requiera)
 
     // Rellenar la matriz
-    for (int fila = 0; fila <= longitudSecuencia1; fila++) { // los ++ son para controlar mejor los bucles
+    for (int fila = 0; fila <= longitudSecuencia1; fila++) {
         for (int columna = 0; columna <= longitudSecuencia2; columna++) {
             if (fila == 0 && columna == 0) {
-                matriz[fila][columna] = 0; 
-
+                matriz[fila][columna] = 0;
             } else if (fila > 0 && columna == 0) {
-                matriz[fila][columna] = matriz[fila - 1][columna] + gap; // gap en la primera sec
+                matriz[fila][columna] = matriz[fila - 1][columna] + gap;  // gap en la primera secuencia
             } else if (fila == 0 && columna > 0) {
-                matriz[fila][columna] = matriz[fila][columna - 1] + gap; // gap en la segunda sec
+                matriz[fila][columna] = matriz[fila][columna - 1] + gap;  // gap en la segunda secuencia
             } else {
-                // Calculamos el puntaje diagonal (si los caracteres coinciden o no)
-                int puntajeDiagonal;
-                if (secuencia1[fila - 1] == secuencia2[columna - 1]) {
-                    puntajeDiagonal = matriz[fila - 1][columna - 1] + coincidencia; // Coincidencia
-                } else {
-                    puntajeDiagonal = matriz[fila - 1][columna - 1] + diferencia; // No coincidencia
-                }
+                // el puntaje diagonal
+                int indice1 = indiceDeLetra(secuencia1[fila - 1]);
+                int indice2 = indiceDeLetra(secuencia2[columna - 1]);
+                int puntajeDiagonal = matriz[fila - 1][columna - 1] + matrizU[indice1][indice2];
 
-                int puntajeArriba = matriz[fila - 1][columna] + gap;   // Gap en la segunda secuencia
-                int puntajeIzquierda = matriz[fila][columna - 1] + gap; // Gap en la primera secuencia
+                // gaps ( arriba o derecha)
+                int puntajeArriba = matriz[fila - 1][columna] + gap;  // Gap en la segunda secuencia
+                int puntajeIzquierda = matriz[fila][columna - 1] + gap;  // Gap en la primera secuencia
 
-                // Calcular el máximo de las tres opciones
+            
                 matriz[fila][columna] = max(puntajeDiagonal, max(puntajeArriba, puntajeIzquierda));
             }
         }
@@ -60,78 +101,147 @@ void RellenarMatriz(const string& secuencia1, const string& secuencia2, int coin
         cout << endl;
     }
 
-
-
-    //-----ALINEAMIENTO
+    //-----Alineamiento
     int fila = longitudSecuencia1;
     int columna = longitudSecuencia2;
     string alineamientoSecuencia1 = "";
     string alineamientoSecuencia2 = "";
 
-
-    while (fila > 0 || columna > 0) {// para ir recorriendo la matris inversamente
-        if (fila > 0 && columna > 0) {//(Esquina inferior izquierda hacia arriba)
-            // en diagoal
-            int puntajeDiagonal;
-            if (secuencia1[fila - 1] == secuencia2[columna - 1]) {
-                puntajeDiagonal = matriz[fila - 1][columna - 1] + coincidencia; // Coincidencia
-            } else {
-                puntajeDiagonal = matriz[fila - 1][columna - 1] + diferencia; // Diferencia
-            }
+    while (fila > 0 || columna > 0) {
+        if (fila > 0 && columna > 0) {
+            // Puntaje diagonal con la matriz U
+            int indice1 = indiceDeLetra(secuencia1[fila - 1]);
+            int indice2 = indiceDeLetra(secuencia2[columna - 1]);
+            int puntajeDiagonal = matriz[fila - 1][columna - 1] + matrizU[indice1][indice2];
 
             if (matriz[fila][columna] == puntajeDiagonal) {
                 alineamientoSecuencia1 = secuencia1[fila - 1] + alineamientoSecuencia1;
                 alineamientoSecuencia2 = secuencia2[columna - 1] + alineamientoSecuencia2;
-                fila--; 
-                columna--; 
+                fila--;
+                columna--;
             } else if (matriz[fila][columna] == matriz[fila - 1][columna] + gap) {
-                // se mueve hacia arriba (gap en la segunda secuencia (T))
                 alineamientoSecuencia1 = secuencia1[fila - 1] + alineamientoSecuencia1;
                 alineamientoSecuencia2 = "-" + alineamientoSecuencia2;
                 fila--;
             } else {
-                // se mueve hacia la izquierda (gap en la primera secuencia (S))
                 alineamientoSecuencia1 = "-" + alineamientoSecuencia1;
                 alineamientoSecuencia2 = secuencia2[columna - 1] + alineamientoSecuencia2;
                 columna--;
             }
         } else if (fila > 0) {
-            // Movimiento hacia arriba (solo fila restante)
             alineamientoSecuencia1 = secuencia1[fila - 1] + alineamientoSecuencia1;
             alineamientoSecuencia2 = "-" + alineamientoSecuencia2;
             fila--;
         } else {
-            // Movimiento hacia la izquierda (solo columna restante)
             alineamientoSecuencia1 = "-" + alineamientoSecuencia1;
             alineamientoSecuencia2 = secuencia2[columna - 1] + alineamientoSecuencia2;
             columna--;
         }
     }
 
-    // Imprimir el alineamiento 
+    // imprimir los alineamientos 
     cout << "Alineamiento de la primera secuencia: " << alineamientoSecuencia1 << endl;
     cout << "Alineamiento de la segunda secuencia: " << alineamientoSecuencia2 << endl;
-}
 
-int main(int argc, char* argv[]) {
-    // Verificar que los argumentos se pasaron correctamente
-    if (argc != 3) {
-        cerr << "Uso incorrecto del programa. El formato es:\n";
-        cerr << "./programa cad1.tex cad2.tex\n";
-        return 1;
+    // Guardar el alineamiento en un archivo de texto (opcional) por creatividad
+    ofstream outputFile("alineamiento.txt");
+    if (outputFile.is_open()) {
+        outputFile << "Alineamiento de la primera secuencia: " << alineamientoSecuencia1 << endl;
+        outputFile << "Alineamiento de la segunda secuencia: " << alineamientoSecuencia2 << endl;
+        outputFile.close();
+        cout << "Alineamiento guardado en 'alineamiento.txt'.\n";
+    } else {
+        cerr << "Error al guardar el alineamiento.\n";
     }
 
     
-    string secuencia1 = leerArchivo(argv[1]);  
-    string secuencia2 = leerArchivo(argv[2]);  
+    generarGraphviz(alineamientoSecuencia1, alineamientoSecuencia2, "alineamiento.dot");
+}
 
-    //reglas de puntuacion
-    int coincidencia = 1;
-    int diferencia = -1;
-    int gap = -1;
+// el graphvizz
+void generarGraphviz(const string& alineamientoSecuencia1, const string& alineamientoSecuencia2, const string& nombreArchivo) {
+    // comienza en 0 y se va ajustando segun el largo de la seq
+    size_t start = 0;
+    size_t end = min(alineamientoSecuencia1.length(), static_cast<size_t>(100)); // (modificable)
 
 
-    RellenarMatriz(secuencia1, secuencia2, coincidencia, diferencia, gap);
+    ofstream dotFile(nombreArchivo);
+    if (!dotFile.is_open()) {
+        cerr << "No se genera el graphviz." << endl;
+        return;
+    }
+
+    dotFile << "digraph G {\n";
+    dotFile << "  rankdir=TB;\n";  // hace que el grafico este en horizontal
+    dotFile << "  node [shape=ellipse, style=filled];\n"; // nodos con colorsito
+
+
+
+    // CAJITA----------------------------------COLORES------------------------------------------
+    dotFile << "   subgraph cluster_info {\n";
+    dotFile << "       label=\"Colores\";\n";
+    dotFile << "       style=dotted;\n";
+    dotFile << "       node [style=filled, width=0.1, fontsize=3];\n";  // TAMAÑO NODOS---
+    dotFile << "       ranksep=0.05;\n";  
+// cada nucleotido
+    dotFile << "       A_legend [label=\"Adenina (A)\", shape=ellipse, fillcolor=green];\n";
+    dotFile << "       T_legend [label=\"Timina (T)\", shape=ellipse, fillcolor=red];\n";
+    dotFile << "       C_legend [label=\"Citosina (C)\", shape=ellipse, fillcolor=blue];\n";
+    dotFile << "       G_legend [label=\"Guanina (G)\", shape=ellipse, fillcolor=yellow];\n";
+    dotFile << "       Match [label=\"Match\", shape=plaintext, color=green];\n";
+    dotFile << "       Gap [label=\"Gap\", shape=plaintext, color=red];\n";
+    dotFile << "   }\n";
+    auto obtenerColor = [](char nucleotido) {
+        switch (nucleotido) {
+            case 'A': return "green";   // Adenina
+            case 'T': return "red";     // Timina
+            case 'C': return "blue";    // Citosina
+            case 'G': return "yellow";  // Guanina
+            default: return "gray";     // para que los gaps
+        }
+    };
+
+    // ciclo for que itera por el rango que tenga la secuencia de nucleotidos
+    for (size_t k = start; k < end; k++) {
+        char nucleoA = alineamientoSecuencia1[k];
+        char nucleoB = alineamientoSecuencia2[k];
+
+
+        // se le asigna el color a cada nucleotido
+        dotFile << "   A" << k << " [label=\"" << nucleoA << "\", fillcolor=" << obtenerColor(nucleoA) << "];\n";
+        dotFile << "   B" << k << " [label=\"" << nucleoB << "\", fillcolor=" << obtenerColor(nucleoB) << "];\n";
+
+        // conexiones (MATCH,GAP)
+        if (nucleoA != '-' && nucleoB != '-') {
+            dotFile << "   A" << k << " -> B" << k << " [label=\"Match\" color=green];\n";
+        } else if (nucleoA == '-' || nucleoB == '-') {
+            dotFile << "   A" << k << " -> B" << k << " [label=\"Gap\" color=red];\n";
+        }
+    }
+
+    dotFile << "}\n";
+    dotFile.close();
+
+    cout << "Alineamiento Grapvhiz guardado como '" << nombreArchivo << "'." << endl;
+    system("dot -Tpng alineamiento.dot -o alineamiento.png");
+    system("eog alineamiento.png&");
+}
+
+int main(int argc, char* argv[]) {
+    if (argc != 4) {
+        cerr << "Uso incorrecto del programa. El formato es:\n";
+        cerr << "./programa cad1.tex cad2.tex funU.csv\n";
+        return 1;
+    }
+
+    string secuencia1 = leerArchivo(argv[1]);
+    string secuencia2 = leerArchivo(argv[2]);
+
+    vector<vector<int>> matrizU = leerMatrizU(argv[3]);
+
+    int gap = -1;  // Puntaje para gaps
+
+    RellenarMatriz(secuencia1, secuencia2, matrizU, gap);
 
     return 0;
 }
