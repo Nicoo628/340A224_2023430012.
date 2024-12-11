@@ -229,10 +229,15 @@ void generarGraphviz(const string& alineamientoSecuencia1, const string& alineam
 
 int main(int argc, char* argv[]) {
     if (argc != 4) {
-        cerr << "Uso incorrecto del programa. El formato es:\n";
-        cerr << "./programa cad1.tex cad2.tex funU.csv\n";
+        cerr << "Ejecucion incorrecta. Es:\n";
+        cerr << "./programa cad1.tex cad2.tex Matriz_U.csv\n";
         return 1;
     }
+
+//prueba con cadenas mas largas: AGCTTAGGCTAAGCTTAGGCTTAGCTAAGCT
+//TCGATCGATCGATCGATCGATCGATCGATC
+
+
 
     string secuencia1 = leerArchivo(argv[1]);
     string secuencia2 = leerArchivo(argv[2]);
