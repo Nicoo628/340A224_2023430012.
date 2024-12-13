@@ -1,28 +1,24 @@
 Proyecto de Alineamiento de Secuencias de ADN
 
-Este proyecto implementa un algoritmo de alineamiento de secuencias de ADN utilizando el algoritmo de Needleman-Wunsch para encontrar el alineamiento óptimo entre dos secuencias de ADN. Utiliza una matriz de puntuación personalizada, representada por un archivo CSV, y genera una visualización gráfica del alineamiento utilizando Graphviz.
+En esteproyecto implementa un programa en C++ para realizar el alineamiento de dos secuencias biológicas utilizando una matriz de puntajes y el algoritmo Needleman-Wunsch. Además, el programa genera una visualización en formato Graphviz para representar el alineamiento resultante.
 
-se realiza 
-lectura de secuencias de ADN y se genera matriz de puntuacion
-Se uso el algoritmo de Needleman-wunsh como fue sugerido en la pauta
-La vizualizacion de alineamiento es generada en formato png usando GRapvhiz
-Los colores de los nucleotidos son Adenina(VERDE), timina(rojo), citocina(azul), guanina(amarillo)
+Características principales:
+Lectura de una matriz de emparejamiento (matriz U) desde un archivo CSV.
+Rellenado de la matriz de alineamiento según el algoritmo de alineamiento global.
+Cálculo y visualización de las secuencias alineadas.
+Generación de un archivo de alineamiento en formato texto.
+Creación de un archivo Graphviz para representar el alineamiento en un grafo visual.
 
-Instrucciones
-Compilación y Ejecución
 
-    Compilar el código: Abre una terminal y navega hasta el directorio donde está tu archivo algoritmo.cpp, luego ejecuta:
+Archivos incluidos
 
-g++ algoritmo.cpp -o alineamiento
+main.cpp: Contiene el código fuente principal con las funciones para leer, procesar y generar alineamientos.
 
-Ejecutar el programa: Una vez compilado, ejecuta el programa con los siguientes parámetros:
+alineamiento.txt: Archivo de salida que almacena las secuencias alineadas.
 
-./alineamiento cad1.txt cad2.txt matriz_U.csv
+alineamiento.dot: Archivo de salida en formato Graphviz para la visualización del alineamiento.
 
-Donde:
+matrizU.csv: Archivo de entrada con la matriz de emparejamiento.
 
-    cad1.txt: El archivo que contiene la primera secuencia de ADN.
-    cad2.txt: El archivo que contiene la segunda secuencia de ADN.
-    matriz_U.csv: El archivo CSV con la matriz de puntuación.
-
-    Este proyecto fue hecho por NIcolas Morales
+cad1.tex y cad2.tex: que tienen las secuencias
+Instrucciones de uso ( compila con el siguiente comando): ./a.out cad1.tex cad2.tex Matriz_U.csv

@@ -230,12 +230,12 @@ void generarGraphviz(const string& alineamientoSecuencia1, const string& alineam
 int main(int argc, char* argv[]) {
     if (argc != 4) {
         cerr << "Ejecucion incorrecta. Es:\n";
-        cerr << "./programa cad1.tex cad2.tex Matriz_U.csv\n";
+        cerr << "./a.out cad1.tex cad2.tex Matriz_U.csv";
         return 1;
     }
 
 //prueba con cadenas mas largas: AGCTTAGGCTAAGCTTAGGCTTAGCTAAGCT
-//TCGATCGATCGATCGATCGATCGATCGATC
+//TCGATCGATCGATCGATCGTC
 
 
 
